@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MadLevel4Task1">
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/Theme.MadLevel4Task1.NoActionBar">
             <intent-filter>
