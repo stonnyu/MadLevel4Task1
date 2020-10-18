@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.DialogInterface
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -12,7 +11,6 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
 import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.fragment.app.setFragmentResultListener
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -49,6 +47,11 @@ class ShoppingListFragment : Fragment() {
         fabAdd.setOnClickListener {
             showAddProductDialog()
         }
+
+        fabDelete.setOnClickListener {
+            removeAllProducts()
+        }
+
     }
 
     private fun initRv() {
@@ -95,15 +98,23 @@ class ShoppingListFragment : Fragment() {
         }
     }
 
-    private fun validateFields(txtProductName: EditText
-                               , txtAmount: EditText
-    ): Boolean {
+    private fun removeAllProducts() {
+        mainScope.launch {
+            withContext(Dispatchers.IO) {
+                productRepository.deleteAllProducts()
+            }
+            getShoppingListFromDatabase()
+        }
+    }
+
+    private fun validateFields(txtProductName: EditText, txtAmount: EditText): Boolean {
         return if (txtProductName.text.toString().isNotBlank()
             && txtAmount.text.toString().isNotBlank()
+            && txtAmount.text.toString().matches("-?\\d+(\\.\\d+)?".toRegex())
         ) {
             true
         } else {
-            Toast.makeText(activity, "Please fill in the fields", Toast.LENGTH_LONG).show()
+            Toast.makeText(activity, "Invalid input", Toast.LENGTH_LONG).show()
             false
         }
     }
@@ -111,14 +122,12 @@ class ShoppingListFragment : Fragment() {
 
     private fun getShoppingListFromDatabase() {
         mainScope.launch {
-            withContext(Dispatchers.IO) {
                 val productList = withContext(Dispatchers.IO) {
                     productRepository.getAllProducts()
                 }
                 this@ShoppingListFragment.products.clear()
                 this@ShoppingListFragment.products.addAll(productList)
-                productAdapter.notifyDataSetChanged()
-            }
+                this@ShoppingListFragment.productAdapter.notifyDataSetChanged()
         }
     }
 

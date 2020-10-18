@@ -12,7 +12,7 @@ class ProductAdapter(private val products: List<Product>) : RecyclerView.Adapter
 
         fun databind(product: Product) {
             itemView.tvProduct.text = product.productName
-            itemView.tvAmount.text = product.productAmount.toString()
+            itemView.tvAmount.text = String.format("%dX", product.productAmount)
         }
     }
 
